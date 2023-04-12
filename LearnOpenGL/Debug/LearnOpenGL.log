@@ -1,2 +1,7 @@
 ﻿  Application.cpp
+C:\Users\京和\Desktop\LearnOpenGL\LearnOpenGL\src\Application.cpp(75,23): warning C4305: “初始化”: 从“double”到“float”截断
+C:\Users\京和\Desktop\LearnOpenGL\LearnOpenGL\src\Application.cpp(93,26): warning C4305: “=”: 从“double”到“float”截断
+C:\Users\京和\Desktop\LearnOpenGL\LearnOpenGL\src\Application.cpp(97,25): warning C4305: “=”: 从“double”到“float”截断
+  Shader.cpp
+  正在生成代码...
   LearnOpenGL.vcxproj -> C:\Users\京和\Desktop\LearnOpenGL\Debug\LearnOpenGL.exe

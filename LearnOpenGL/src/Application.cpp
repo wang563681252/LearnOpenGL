@@ -2,50 +2,13 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <string>
+#include <cstring>
 
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-    unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE)
-    {
-        int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)alloca(length * sizeof(char));
-        glGetShaderInfoLog(id, length, &length, message);
-        if (type == GL_VERTEX_SHADER) printf("vertexShader\n");
-        if (type == GL_FRAGMENT_SHADER) printf("fragmentShader\n");
-        printf("Failed to compile shader!\n");
-        printf("%s\n", message);
-
-        glDeleteShader(id);
-        return 0;
-    }
-
-    return id;
-}
-
-static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteProgram(vs);
-    glDeleteProgram(fs);
-
-    return program;
-}
+#include "renderer.h"
+#include "IndexBuffer.h"
+#include "VertexBuffer.h"
+#include "VertexArray.h"
+#include "Shader.h"
 
 int main(void)
 {
@@ -54,6 +17,10 @@ int main(void)
     /* Initialize the library */
     if (!glfwInit())
         return -1;
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
@@ -66,6 +33,8 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    glfwSwapInterval(1);
+
     if (glewInit() != GLEW_OK)
     {
         printf("ERROR");
@@ -73,49 +42,61 @@ int main(void)
 
     printf((char*)glGetString(GL_VERSION));
 
-    float position[6] = {
+    float position[] = {
         -0.5f, -0.5f,
-         0.0f,  0.5f,
-         0.5f, -0.5f
+         0.5f, -0.5f,
+         0.5f,  0.5f,
+        -0.5f,  0.5f
     };
 
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+    VertexArray va;
+    VertexBuffer vb(position, 4 * 2 * sizeof(float));
+    VertexBufferLayout layout;
+    layout.Push<float>(2);
+    va.AddBuffer(vb, layout);
 
-    std::string vertexShader =
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) in vec4 position;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = position;\n"
-        "}\n";
+    IndexBuffer ib(indices, 6);
 
-    std::string fragmentShader =
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) out vec4 color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-        "}\n";
+    Shader shader("res/shaders/Basic.shader");
+    shader.Bind();
+    shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
 
-    unsigned int shader = CreateShader(vertexShader, fragmentShader);
-    glUseProgram(shader);
+    va.Unbind();
+    vb.Unbind();
+    ib.Unbind();
+    shader.Unbind();
 
+    float r = 0;
+    float speed = 0.05;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        shader.Bind();
+        shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+
+        //GLCall(glBindVertexArray(vao));
+        va.Bind();
+        ib.Bind();
+
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+        if (r >= 1)
+        {
+            speed = -0.05;
+        }
+        else if (r <= 0)
+        {
+            speed = 0.05;
+        }
+        r += speed;
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -123,8 +104,6 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
-
-    glDeleteProgram(shader);
 
     glfwTerminate();
     return 0;
