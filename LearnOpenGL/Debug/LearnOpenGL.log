@@ -1,7 +1,5 @@
-﻿  Application.cpp
-C:\Users\京和\Desktop\LearnOpenGL\LearnOpenGL\src\Application.cpp(75,23): warning C4305: “初始化”: 从“double”到“float”截断
-C:\Users\京和\Desktop\LearnOpenGL\LearnOpenGL\src\Application.cpp(93,26): warning C4305: “=”: 从“double”到“float”截断
-C:\Users\京和\Desktop\LearnOpenGL\LearnOpenGL\src\Application.cpp(97,25): warning C4305: “=”: 从“double”到“float”截断
-  Shader.cpp
-  正在生成代码...
+﻿  Texture.cpp
+LINK : warning LNK4098: 默认库“MSVCRT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+LINK : warning LNK4098: 默认库“LIBCMT”与其他库的使用冲突；请使用 /NODEFAULTLIB:library
+glew32s.lib(glew.obj) : warning LNK4099: 未找到 PDB“”(使用“glew32s.lib(glew.obj)”或在“”中寻找)；正在链接对象，如同没有调试信息一样
   LearnOpenGL.vcxproj -> C:\Users\京和\Desktop\LearnOpenGL\Debug\LearnOpenGL.exe

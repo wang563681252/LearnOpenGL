@@ -4,10 +4,11 @@
 #include <string>
 #include <cstring>
 
-#include "renderer.h"
+#include "Renderer.h"
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexArray.h"
+#include "VertexBufferLayout.h"
 #include "Shader.h"
 
 int main(void)
@@ -44,7 +45,7 @@ int main(void)
 
     float position[] = {
         -0.5f, -0.5f,
-         0.5f, -0.5f,
+         0.5f, -0.5f, 
          0.5f,  0.5f,
         -0.5f,  0.5f
     };
@@ -57,7 +58,7 @@ int main(void)
     VertexArray va;
     VertexBuffer vb(position, 4 * 2 * sizeof(float));
     VertexBufferLayout layout;
-    layout.Push<float>(2);
+    layout.Push<float>((unsigned int)2);
     va.AddBuffer(vb, layout);
 
     IndexBuffer ib(indices, 6);
@@ -71,22 +72,19 @@ int main(void)
     ib.Unbind();
     shader.Unbind();
 
+    Renderer renderer;
+
     float r = 0;
     float speed = 0.05;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.Clear();
 
         shader.Bind();
         shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
 
-        //GLCall(glBindVertexArray(vao));
-        va.Bind();
-        ib.Bind();
-
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+        renderer.Draw(va, ib, shader);
 
         if (r >= 1)
         {

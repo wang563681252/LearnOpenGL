@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <Gl/glew.h>
-#include "renderer.h"
+#include "Renderer.h"
 
 struct VertexBufferElement
 {
@@ -37,7 +37,7 @@ public:
 	template<typename T>
 	void Push(unsigned int count)
 	{
-		static_assert(true);
+		ASSERT(false);
 	}
 
 	template<>
